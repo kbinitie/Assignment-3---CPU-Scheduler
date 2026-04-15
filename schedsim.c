@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string.h> // strcmp() changed since argv[1] is a string, compare strings with strcmp()
 
 int main(int argc, char *argv[]) {
     int quantum;
 
     // Need at least program name + algorithm + input file
-    if (argc < 3 || argc > 4) {
+    if (argc < 3 || argc > 4) { // prog requires either 3 or 4 total args
         fprintf(stderr, "Incorrect argument count.\n");
         fprintf(stderr, "Usage:\n");
         fprintf(stderr, "  ./schedsim priority <input_file>\n");
@@ -14,6 +14,8 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "  ./schedsim rr <input_file> <time_quantum>\n");
         return 1;
     }
+
+    // NOTE: Switched to useing fprintf to print to error stream
 
     // We validate algorithm
     if (strcmp(argv[1], "priority") != 0 &&
