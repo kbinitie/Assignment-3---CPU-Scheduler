@@ -134,8 +134,12 @@ Debug output (process logs, scheduler logs, etc.) was **commented out** to match
 
 ## Sample Output
 
-Example (Priority Scheduling - tasks.txt):
+### Priority Scheduling (`tasks.txt`)
 ```
+Algorithm: priority
+Input file: tasks.txt
+
+Gantt Chart:
 | P1 | P2 | P2 | P2 | P2 | P4 | P4 | P4 | P4 | P4 | P1 | P1 | P1 | P1 | P1 | P1 | P1 | P3 | P3 | P3 | P3 | P3 | P3 | P3 | P3 | P3 |
 
 Performance Metrics:
@@ -144,6 +148,79 @@ Average Turnaround Time: 13.00
 Average Response Time: 4.25
 Total Context Switches: 4
 ```
+
+---
+
+### Round Robin Scheduling (`tasks.txt`, q = 4)
+
+```
+Algorithm: rr
+Input file: tasks.txt
+Time quantum: 4
+
+Gantt Chart:
+| P1 | P1 | P1 | P1 | P2 | P2 | P2 | P2 | P3 | P3 | P3 | P3 | P4 | P4 | P4 | P4 | P1 | P1 | P1 | P1 | P3 | P3 | P3 | P3 | P4 | P3 |
+
+Performance Metrics:
+Average Waiting Time: 11.75
+Average Turnaround Time: 18.25
+Average Response Time: 4.50
+Total Context Switches: 7
+```
+
+---
+
+### CFS Scheduling (`tasks.txt`)
+```
+Algorithm: cfs
+Input file: tasks.txt
+
+Gantt Chart:
+| P1 | P2 | P3 | P4 | P1 | P2 | P3 | P4 | P1 | P2 | P3 | P4 | P1 | P2 | P3 | P4 | P1 | P3 | P4 | P1 | P3 | P1 | P3 | P1 | P3 | P3 |
+
+Performance Metrics:
+Average Waiting Time: 12.75
+Average Turnaround Time: 19.25
+Average Response Time: 0.00
+Total Context Switches: 24
+```
+
+---
+
+## Data Analysis Report
+
+The performance of each scheduling algorithm was evaluated using the same workload (`tasks.txt`) to ensure a direct and fair comparison.
+
+### Priority Scheduling
+Priority Scheduling produced the best overall performance for this workload. It achieved an average turnaround time of **13.00** and an average waiting time of **6.50**, both of which are significantly lower than the other algorithms. This is because the scheduler always selects the highest-priority process (lower numerical value), allowing shorter or more important tasks to complete earlier.
+
+Additionally, Priority Scheduling resulted in only **4 context switches**, which is the lowest among all algorithms tested. This indicates minimal overhead and efficient CPU usage. However, this approach can lead to starvation in more complex workloads where lower-priority processes may never get scheduled.
+
+---
+
+### Round Robin Scheduling (q = 4)
+Round Robin Scheduling with a time quantum of 4 resulted in an average turnaround time of **18.25** and an average waiting time of **11.75**, both higher than Priority Scheduling. The increase is due to frequent preemption, which introduces additional waiting time for processes.
+
+The number of context switches increased to **7**, reflecting the overhead of time slicing. However, Round Robin provides better fairness than Priority Scheduling because all processes are given CPU time in a cyclic order. The response time (**4.50**) is comparable to Priority Scheduling, indicating that processes are still able to start execution relatively quickly.
+
+---
+
+### Completely Fair Scheduling (CFS)
+The CFS algorithm achieved the best response time, with an average response time of **0.00**, meaning each process began execution immediately upon arrival. This demonstrates that CFS strongly prioritizes fairness and responsiveness.
+
+However, this fairness comes at a cost. CFS produced the highest average turnaround time (**19.25**) and waiting time (**12.75**), as well as the largest number of context switches (**24**). The frequent switching between processes increases overhead and delays completion times.
+
+---
+
+### Overall Comparison
+
+- **Best Turnaround Time:** Priority Scheduling (13.00)
+- **Best Waiting Time:** Priority Scheduling (6.50)
+- **Best Response Time:** CFS (0.00)
+- **Lowest Context Switching:** Priority Scheduling (4)
+- **Most Fair Scheduling:** CFS
+
+These results show that there is no single optimal scheduler for all situations. Priority Scheduling performs best in terms of efficiency, Round Robin balances fairness and responsiveness, and CFS ensures the most equitable CPU distribution at the cost of performance overhead.
 
 ## Experimental Data Collection
 
