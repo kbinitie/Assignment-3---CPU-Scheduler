@@ -52,7 +52,7 @@ This ensures:
 ### Preemptive Priority Scheduling
 - Lower number = higher priority
 - Scheduler always selects the highest-priority ready process
-- Preemption occurs immediately when a higher-priority process arrives
+- The scheduler always selects the highest-priority ready process at each tick (preemptive behavior emerges naturally in the simulation)
 
 ---
 
@@ -66,7 +66,7 @@ This ensures:
 
 ### Simplified CFS
 - Selects process with the smallest **vruntime**
-- Each tick increments vruntime by 1
+- Each tick increments vruntime by the amount of CPU time used (1 per tick in this simulation)
 - Ensures fair CPU distribution among processes
 
 ---
@@ -76,6 +76,7 @@ This ensures:
 ### tasks.txt
 
 ```
+PID Arrival Burst Priority
 P1 0 8 3
 P2 1 4 1
 P3 2 9 4
@@ -85,6 +86,7 @@ P4 3 5 2
 ### tasks1.txt
 
 ```
+PID Arrival Burst Priority
 P1 0 2 1
 P2 1 3 2
 P3 2 1 3
@@ -93,6 +95,7 @@ P3 2 1 3
 ### tasks2.txt
 
 ```
+PID Arrival Burst Priority
 P1 0 20 3
 P2 2 15 2
 P3 4 25 1
@@ -101,6 +104,7 @@ P3 4 25 1
 ### tasks3.txt
 
 ```
+PID Arrival Burst Priority
 P1 0 8 3
 P2 1 2 1
 P3 2 10 4
@@ -127,6 +131,19 @@ Each execution prints:
 Debug output (process logs, scheduler logs, etc.) was **commented out** to match assignment requirements.
 
 ---
+
+## Sample Output
+
+Example (Priority Scheduling - tasks.txt):
+```
+| P1 | P2 | P2 | P2 | P2 | P4 | P4 | P4 | P4 | P4 | P1 | P1 | P1 | P1 | P1 | P1 | P1 | P3 | P3 | P3 | P3 | P3 | P3 | P3 | P3 | P3 |
+
+Performance Metrics:
+Average Waiting Time: 6.50
+Average Turnaround Time: 13.00
+Average Response Time: 4.25
+Total Context Switches: 4
+```
 
 ## Experimental Data Collection
 
