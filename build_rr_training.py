@@ -73,4 +73,7 @@ for task in best_quantum:
 
     # Write the training data to the file
     training_data_file.write(f"{num_processes},{avg_burst_time},{max_burst_time},{min_burst_time},{std_dev_burst_time},{avg_arrival_gap},{optimal_quantum}\n")
+training_data_file.close()
+
+
     
