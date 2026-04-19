@@ -7,6 +7,7 @@
 #include "process.h"
 
 #define MAX_PROCESSES 100
+#define MAX_GANTT_TICKS 1000
 
 Process processes[MAX_PROCESSES];
 int process_count = 0;
@@ -22,6 +23,12 @@ pthread_mutex_t state_mutex = PTHREAD_MUTEX_INITIALIZER;
 int current_time = 0;
 int finished_count = 0;
 int simulation_done = 0;
+
+/* Gantt chart + context switch tracking */
+char gantt_chart[MAX_GANTT_TICKS][MAX_PID_LEN];
+int gantt_count = 0;
+int context_switches = 0;
+int last_scheduled = -1;
 
 int load_processes(const char *filename, Process processes[]) {
     FILE *input_file;
@@ -93,6 +100,47 @@ int select_priority_process(void) {
     return best_index;
 }
 
+void record_gantt_entry(const char *label) {
+    if (gantt_count < MAX_GANTT_TICKS) {
+        strncpy(gantt_chart[gantt_count], label, MAX_PID_LEN - 1);
+        gantt_chart[gantt_count][MAX_PID_LEN - 1] = '\0';
+        gantt_count++;
+    }
+}
+
+void print_gantt_chart(void) {
+    int i;
+
+    printf("\nGantt Chart:\n");
+    for (i = 0; i < gantt_count; i++) {
+        printf("| %s ", gantt_chart[i]);
+    }
+    printf("|\n");
+}
+
+void print_metrics(void) {
+    int i;
+    double total_waiting = 0.0;
+    double total_turnaround = 0.0;
+    double total_response = 0.0;
+
+    for (i = 0; i < process_count; i++) {
+        int turnaround = processes[i].completion_time - processes[i].arrival;
+        int waiting = turnaround - processes[i].burst;
+        int response = processes[i].first_start_time - processes[i].arrival;
+
+        total_turnaround += turnaround;
+        total_waiting += waiting;
+        total_response += response;
+    }
+
+    printf("\nPerformance Metrics:\n");
+    printf("Average Waiting Time: %.2f\n", total_waiting / process_count);
+    printf("Average Turnaround Time: %.2f\n", total_turnaround / process_count);
+    printf("Average Response Time: %.2f\n", total_response / process_count);
+    printf("Total Context Switches: %d\n", context_switches);
+}
+
 void *process_runner(void *arg) {
     Process *p = (Process *)arg;
     int local_time;
@@ -158,6 +206,14 @@ void *scheduler_runner(void *arg) {
 
         if (chosen == -1) {
             printf("\nScheduler: time %d, IDLE\n", current_time);
+
+            record_gantt_entry("IDLE");
+
+            if (last_scheduled != -1) {
+                context_switches++;
+            }
+            last_scheduled = -1;
+
             current_time++;
             pthread_mutex_unlock(&state_mutex);
             continue;
@@ -165,6 +221,13 @@ void *scheduler_runner(void *arg) {
 
         printf("\nScheduler: time %d, running %s\n",
                current_time, processes[chosen].pid);
+
+        record_gantt_entry(processes[chosen].pid);
+
+        if (last_scheduled != -1 && last_scheduled != chosen) {
+            context_switches++;
+        }
+        last_scheduled = chosen;
 
         pthread_mutex_unlock(&state_mutex);
 
@@ -294,6 +357,9 @@ int main(int argc, char *argv[]) {
     for (i = 0; i < process_count; i++) {
         pthread_join(process_threads[i], NULL);
     }
+
+    print_gantt_chart();
+    print_metrics();
 
     for (i = 0; i < process_count; i++) {
         sem_destroy(&process_sems[i]);
