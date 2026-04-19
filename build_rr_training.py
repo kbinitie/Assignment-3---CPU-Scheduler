@@ -68,7 +68,7 @@ for task in best_quantum:
     max_burst_time = max(burst_times)
     min_burst_time = min(burst_times)
     std_dev_burst_time = (sum([(x - avg_burst_time) ** 2 for x in burst_times]) / num_processes) ** 0.5
-    avg_arrival_gap = (max(arrival_times) - min(arrival_times)) / num_processes
+    avg_arrival_gap = (max(arrival_times) - min(arrival_times)) / (num_processes - 1) if num_processes > 1 else 0
     optimal_quantum = best_quantum[task]
 
     # Write the training data to the file
