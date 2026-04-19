@@ -1,0 +1,5 @@
+taskset,avg_turnaround,avg_waiting,avg_response,context_switches
+tasks.txt,19.25,12.75,0.00,24
+tasks1.txt,3.33,1.33,0.00,4
+tasks2.txt,50.67,30.67,0.00,51
+tasks3.txt,10.75,5.50,0.00,18

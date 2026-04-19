@@ -1,0 +1,4 @@
+PID Arrival Burst Priority
+P1 0 20 3
+P2 2 15 2
+P3 4 25 1
