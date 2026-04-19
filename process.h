@@ -2,8 +2,6 @@
 #define PROCESS_H
 
 #define MAX_PID_LEN 20
-
-// TODO: FIX SOME STUFF LATER??
  
 typedef struct {
     char pid[MAX_PID_LEN];   // process name like P1
