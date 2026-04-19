@@ -5,6 +5,10 @@ Brent Matthew Ortizo
 Student ID: 2452997  
 Email: ortizo@chapman.edu  
 
+Kayode Binitie  
+Student ID: 2461327  
+Email: binitie@chapman.edu  
+
 ---
 
 ## Description
