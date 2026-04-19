@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# Brent Ortizo and Kayode Binitie
 import math
 import csv
 
