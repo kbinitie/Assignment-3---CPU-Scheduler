@@ -11,6 +11,11 @@ Email: binitie@chapman.edu
 
 ---
 
+## Repository
+
+GitHub Repository:  
+https://github.com/kbinitie/Assignment-3---CPU-Scheduler/tree/main
+
 ## Description
 This project implements a **multithreaded CPU scheduling simulator** using **POSIX threads and semaphores**. Each process in the system is represented as its own thread, while a dedicated scheduler thread controls execution in a **tick-based simulation**.
 
