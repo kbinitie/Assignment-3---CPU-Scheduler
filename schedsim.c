@@ -59,26 +59,26 @@ int main(int argc, char *argv[]) {
     }
 
     // temp test struct 
-    Process test_process;
+    // Process test_process;
 
-    strcpy(test_process.pid, "P1");
-    test_process.arrival = 0;
-    test_process.burst = 8;
-    test_process.priority = 3;
-    test_process.remaining_burst = 8;
-    test_process.first_start_time = -1;
-    test_process.completion_time = -1;
-    test_process.started = 0;
-    test_process.finished = 0;
-    test_process.vruntime = 0;
-    test_process.rr_time_used = 0;
-    test_process.index = 0;
+    // strcpy(test_process.pid, "P1");
+    // test_process.arrival = 0;
+    // test_process.burst = 8;
+    // test_process.priority = 3;
+    // test_process.remaining_burst = 8;
+    // test_process.first_start_time = -1;
+    // test_process.completion_time = -1;
+    // test_process.started = 0;
+    // test_process.finished = 0;
+    // test_process.vruntime = 0;
+    // test_process.rr_time_used = 0;
+    // test_process.index = 0;
 
-    printf("\nTesting Process struct:\n");
-    printf("PID: %s\n", test_process.pid);
-    printf("Arrival: %d\n", test_process.arrival);
-    printf("Burst: %d\n", test_process.burst);
-    printf("Priority: %d\n", test_process.priority);
+    // printf("\nTesting Process struct:\n");
+    // printf("PID: %s\n", test_process.pid);
+    // printf("Arrival: %d\n", test_process.arrival);
+    // printf("Burst: %d\n", test_process.burst);
+    // printf("Priority: %d\n", test_process.priority);
 
     return 0;
 }
