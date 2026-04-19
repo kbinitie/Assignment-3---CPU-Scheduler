@@ -17,6 +17,8 @@ pthread_t scheduler_thread;
 sem_t process_sems[MAX_PROCESSES];
 sem_t tick_done_sem;
 
+pthread_mutex_t state_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 int current_time = 0;
 int finished_count = 0;
 int simulation_done = 0;
@@ -32,7 +34,7 @@ int load_processes(const char *filename, Process processes[]) {
         return -1;
     }
 
-    // skip the header line
+    /* Skip the header line */
     if (fgets(header, sizeof(header), input_file) == NULL) {
         fprintf(stderr, "Error: input file is empty.\n");
         fclose(input_file);
@@ -64,34 +66,71 @@ int load_processes(const char *filename, Process processes[]) {
     return count;
 }
 
+int select_priority_process(void) {
+    int i;
+    int best_index = -1;
+
+    for (i = 0; i < process_count; i++) {
+        if (processes[i].arrival <= current_time && !processes[i].finished) {
+            if (best_index == -1) {
+                best_index = i;
+            }
+            else if (processes[i].priority < processes[best_index].priority) {
+                best_index = i;
+            }
+            else if (processes[i].priority == processes[best_index].priority) {
+                if (processes[i].arrival < processes[best_index].arrival) {
+                    best_index = i;
+                }
+                else if (processes[i].arrival == processes[best_index].arrival &&
+                         processes[i].index < processes[best_index].index) {
+                    best_index = i;
+                }
+            }
+        }
+    }
+
+    return best_index;
+}
+
 void *process_runner(void *arg) {
     Process *p = (Process *)arg;
+    int local_time;
 
     while (1) {
         sem_wait(&process_sems[p->index]);
 
+        pthread_mutex_lock(&state_mutex);
+
         if (simulation_done) {
+            pthread_mutex_unlock(&state_mutex);
             break;
         }
 
+        local_time = current_time;
+
         if (!p->started) {
             p->started = 1;
-            p->first_start_time = current_time;
+            p->first_start_time = local_time;
         }
 
         if (p->remaining_burst > 0) {
             p->remaining_burst--;
+
             printf("Process %s ran for one tick. Remaining burst: %d\n",
                    p->pid, p->remaining_burst);
 
             if (p->remaining_burst == 0) {
                 p->finished = 1;
-                p->completion_time = current_time + 1;
+                p->completion_time = local_time + 1;
                 finished_count++;
+
                 printf("Process %s finished at time %d\n",
                        p->pid, p->completion_time);
             }
         }
+
+        pthread_mutex_unlock(&state_mutex);
 
         sem_post(&tick_done_sem);
     }
@@ -100,31 +139,46 @@ void *process_runner(void *arg) {
 }
 
 void *scheduler_runner(void *arg) {
+    int chosen;
     int i;
+
+    (void)arg;
 
     printf("\nScheduler started.\n");
 
-    while (finished_count < process_count) {
-        for (i = 0; i < process_count; i++) {
-            if (processes[i].arrival <= current_time && !processes[i].finished) {
-                printf("\nScheduler: time %d, running %s\n",
-                       current_time, processes[i].pid);
+    while (1) {
+        pthread_mutex_lock(&state_mutex);
 
-                sem_post(&process_sems[processes[i].index]);
-                sem_wait(&tick_done_sem);
-
-                current_time++;
-                break;
-            }
+        if (finished_count >= process_count) {
+            pthread_mutex_unlock(&state_mutex);
+            break;
         }
 
-        if (i == process_count) {
+        chosen = select_priority_process();
+
+        if (chosen == -1) {
             printf("\nScheduler: time %d, IDLE\n", current_time);
             current_time++;
+            pthread_mutex_unlock(&state_mutex);
+            continue;
         }
+
+        printf("\nScheduler: time %d, running %s\n",
+               current_time, processes[chosen].pid);
+
+        pthread_mutex_unlock(&state_mutex);
+
+        sem_post(&process_sems[processes[chosen].index]);
+        sem_wait(&tick_done_sem);
+
+        pthread_mutex_lock(&state_mutex);
+        current_time++;
+        pthread_mutex_unlock(&state_mutex);
     }
 
+    pthread_mutex_lock(&state_mutex);
     simulation_done = 1;
+    pthread_mutex_unlock(&state_mutex);
 
     for (i = 0; i < process_count; i++) {
         sem_post(&process_sems[i]);
@@ -135,7 +189,7 @@ void *scheduler_runner(void *arg) {
 }
 
 int main(int argc, char *argv[]) {
-    int quantum;
+    int quantum = 0;
     int i;
 
     if (argc < 3 || argc > 4) {
@@ -205,6 +259,12 @@ int main(int argc, char *argv[]) {
         printf("  Index: %d\n", processes[i].index);
     }
 
+    if (strcmp(argv[1], "priority") != 0) {
+        fprintf(stderr, "\nThis version only implements priority scheduling so far.\n");
+        fprintf(stderr, "Round Robin and CFS will be added next.\n");
+        return 1;
+    }
+
     for (i = 0; i < process_count; i++) {
         if (sem_init(&process_sems[i], 0, 0) != 0) {
             fprintf(stderr, "Error initializing process semaphore %d\n", i);
@@ -239,6 +299,8 @@ int main(int argc, char *argv[]) {
         sem_destroy(&process_sems[i]);
     }
     sem_destroy(&tick_done_sem);
+
+    pthread_mutex_destroy(&state_mutex);
 
     return 0;
 }
