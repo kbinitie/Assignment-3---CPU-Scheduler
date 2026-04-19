@@ -293,7 +293,7 @@ CFS:
 
 ## Collaboration and References
 
-This project was developed individually with guidance from lecture materials and assignment instructions.
+This project was developed by Brent and Kayode with guidance from lecture materials and assignment instructions.
 
 Brent Ortizo and Kayode Binitie collaborated to design the multithreaded CPU scheduling simulator, implement synchronization using pthreads and semaphores, generate experimental data for Round Robin scheduling, and apply machine learning techniques to analyze and predict optimal scheduling parameters.
 
